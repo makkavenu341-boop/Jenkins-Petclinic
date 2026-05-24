@@ -1,0 +1,6 @@
+/home/ubuntu/petclinic/src/main/java/com/example/petclinic/PetclinicApplication.java
+/home/ubuntu/petclinic/src/main/java/com/example/petclinic/controller/HomeController.java
+/home/ubuntu/petclinic/src/main/java/com/example/petclinic/controller/OwnerController.java
+/home/ubuntu/petclinic/src/main/java/com/example/petclinic/model/Owner.java
+/home/ubuntu/petclinic/src/main/java/com/example/petclinic/repository/OwnerRepository.java
+/home/ubuntu/petclinic/src/main/java/com/example/petclinic/service/OwnerService.java

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Add Owner</title>
+</head>
+
+<body>
+
+<h1>Add Owner</h1>
+
+<form th:action="@{/save-owner}" 
+      method="post" 
+      th:object="${owner}">
+
+    <label>First Name:</label>
+
+    <input type="text" 
+           th:field="*{firstName}">
+    
+    <br><br>
+
+    <label>Last Name:</label>
+
+    <input type="text" 
+           th:field="*{lastName}">
+
+    <br><br>
+
+    <button type="submit">
+        Save Owner
+    </button>
+
+</form>
+
+<br>
+
+<a href="/owners">
+    Back to Owners List
+</a>
+
+</body>
+</html>

@@ -1,0 +1,6 @@
+com/example/petclinic/service/OwnerService.class
+com/example/petclinic/controller/OwnerController.class
+com/example/petclinic/model/Owner.class
+com/example/petclinic/PetclinicApplication.class
+com/example/petclinic/repository/OwnerRepository.class
+com/example/petclinic/controller/HomeController.class
