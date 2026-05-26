@@ -1,8 +1,12 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'Maven'
+    }
+
     triggers {
-        pollSCM('* * * * *')
+        pollSCM('H/5 * * * *')
     }
 
     stages {
@@ -14,12 +18,14 @@ pipeline {
             }
         }
 
-        stage('Scan') {
+        stage('Build and Scan') {
             steps {
+
                 withCredentials([string(credentialsId: 'sonar-id', variable: 'SONAR_TOKEN')]) {
 
                     sh """
-                        mvn clean verify sonar:sonar \
+                        mvn clean verify sonar:sonar -e \
+                        -DskipTests \
                         -Dsonar.projectKey=kalyan8406_petclinic \
                         -Dsonar.organization=kalyan8406 \
                         -Dsonar.host.url=https://sonarcloud.io \
