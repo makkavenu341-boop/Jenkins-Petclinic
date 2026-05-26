@@ -1,23 +1,32 @@
 pipeline {
-    agent{ label 'SVCJAVA'}
+    agent any
+
     triggers {
-        pollSCM{'* * * * *'}
+        pollSCM('* * * * *')
     }
+
     stages {
-        stage('git checkout') {
+
+        stage('Checkout') {
             steps {
-            git url: "https://github.com/kalyan8406/petclinic.git"
-            branch: "main"
+                git branch: 'main',
+                    url: 'https://github.com/kalyan8406/spring-petclinic.git'
             }
         }
-        stage ('scan') {
-            steps {
-                withSonarQubeEnv('SONAR') {
-                sh "maven"
-                }       
-            }
-        
 
+        stage('Scan') {
+            steps {
+                withCredentials([string(credentialsId: 'sonar-id', variable: 'SONAR_TOKEN')]) {
+
+                    sh """
+                        mvn clean verify sonar:sonar \
+                        -Dsonar.projectKey=kalyan8406_petclinic \
+                        -Dsonar.organization=kalyan8406 \
+                        -Dsonar.host.url=https://sonarcloud.io \
+                        -Dsonar.token=$SONAR_TOKEN
+                    """
+                }
+            }
         }
     }
 }
