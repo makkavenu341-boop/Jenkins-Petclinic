@@ -1,0 +1,23 @@
+pipeline {
+    agent{ label 'SPC'}
+    triggers {
+        pollSCM{'* * * * *'}
+    }
+    stages {
+        stage('git checkout') {
+            steps {
+            git url: "https://github.com/kalyan8406/petclinic.git"
+            branch: "main"
+            }
+        }
+        stage ('scan') {
+            steps {
+                withSonarQubeEnv('SONAR') {
+                sh "maven"
+                }       
+            }
+        
+
+        }
+    }
+}
