@@ -22,7 +22,7 @@ pipeline {
         stage('Build and Scan') {
             steps {
 
-                withCredentials([string(credentialsId: 'sonar-id', variable: 'SONAR_TOKEN')]) {
+                withCredentials([string(credentialsId: 'sonarq-id', variable: 'SONAR_TOKEN')]) {
 
                     sh """
                         mvn clean verify sonar:sonar -e \
