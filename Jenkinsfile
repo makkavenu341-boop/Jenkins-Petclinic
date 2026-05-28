@@ -1,3 +1,4 @@
+```groovy
 pipeline {
     agent any
 
@@ -22,16 +23,27 @@ pipeline {
         stage('Build and Scan') {
             steps {
 
-                withCredentials([string(credentialsId: 'sonarq-id', variable: 'SONAR_TOKEN')]) {
+                withSonarQubeEnv('SonarQube') {
 
-                    sh """
-                        mvn clean verify sonar:sonar -e \
-                        -DskipTests \
-                        -Dsonar.projectKey=kalyan8406_petclinic \
-                        -Dsonar.organization=kalyan8406 \
-                        -Dsonar.host.url=https://sonarcloud.io \
-                        -Dsonar.token=$SONAR_TOKEN
-                    """
+                    withCredentials([string(credentialsId: 'sonarq-id', variable: 'SONAR_TOKEN')]) {
+
+                        sh """
+                            mvn clean verify sonar:sonar -e \
+                            -DskipTests \
+                            -Dsonar.projectKey=kalyan8406_petclinic \
+                            -Dsonar.organization=kalyan8406 \
+                            -Dsonar.host.url=https://sonarcloud.io \
+                            -Dsonar.token=$SONAR_TOKEN
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
@@ -58,3 +70,4 @@ pipeline {
         }
     }
 }
+```
