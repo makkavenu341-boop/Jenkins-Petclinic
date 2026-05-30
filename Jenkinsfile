@@ -1,10 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        sonarQubeScanner 'sonar-scanner'
-    }
-
     stages {
 
         stage('Checkout') {
@@ -21,7 +17,7 @@ pipeline {
                         string(credentialsId: 'sonar-id', variable: 'SONAR_TOKEN')
                     ]) {
                         sh '''
-                        sonar-scanner \
+                        $SONAR_RUNNER_HOME/bin/sonar-scanner \
                           -Dsonar.projectKey=makkavenu341-boop-spring-petclinic \
                           -Dsonar.organization=makkavenu341-boop \
                           -Dsonar.sources=. \
@@ -35,7 +31,7 @@ pipeline {
 
         stage('Quality Gate') {
             steps {
-                timeout(time: 5, unit: 'MINUTES') {
+                timeout(time: 10, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
