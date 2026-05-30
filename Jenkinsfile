@@ -1,15 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        maven 'Maven'
-        
-    }
-
-    triggers {
-        pollSCM('H/5 * * * *')
-    }
-
     stages {
 
         stage('Checkout') {
@@ -19,22 +10,20 @@ pipeline {
             }
         }
 
-        stage('Build and Sonar Scan') {
+        stage('Sonar Scan') {
             steps {
                 withSonarQubeEnv('sonar') {
-
                     withCredentials([
                         string(credentialsId: 'sonar-id', variable: 'SONAR_TOKEN')
                     ]) {
-
-                        sh """
-                            mvn clean verify sonar:sonar \
-                            -DskipTests \
-                            -Dsonar.projectKey=makkavenu341-boop-spring-petclinic \
-                            -Dsonar.organization=makkavenu341-boop \
-                            -Dsonar.host.url=https://sonarcloud.io \
-                            -Dsonar.login=$SONAR_TOKEN
-                        """
+                        sh '''
+                        sonar-scanner \
+                          -Dsonar.projectKey=makkavenu341-boop-spring-petclinic \
+                          -Dsonar.organization=makkavenu341-boop \
+                          -Dsonar.sources=. \
+                          -Dsonar.host.url=https://sonarcloud.io \
+                          -Dsonar.token=$SONAR_TOKEN
+                        '''
                     }
                 }
             }
