@@ -15,24 +15,25 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/kalyan8406/spring-petclinic.git'
+                    url: 'https://github.com/makkavenu341-boop/spring-petclinic.git'
             }
         }
 
-        stage('Build and Scan') {
+        stage('Build and Sonar Scan') {
             steps {
-
                 withSonarQubeEnv('sonar') {
 
-                    withCredentials([string(credentialsId: 'sonarq-id', variable: 'SONAR_TOKEN')]) {
+                    withCredentials([
+                        string(credentialsId: 'sonar-id', variable: 'SONAR_TOKEN')
+                    ]) {
 
                         sh """
-                            mvn clean verify sonar:sonar -e \
+                            mvn clean verify sonar:sonar \
                             -DskipTests \
-                            -Dsonar.projectKey=kalyan8406_petclinic \
-                            -Dsonar.organization=kalyan8406 \
+                            -Dsonar.projectKey=makkavenu341-boop-spring-petclinic \
+                            -Dsonar.organization=makkavenu341-boop \
                             -Dsonar.host.url=https://sonarcloud.io \
-                            -Dsonar.token=$SONAR_TOKEN
+                            -Dsonar.login=$SONAR_TOKEN
                         """
                     }
                 }
@@ -44,27 +45,6 @@ pipeline {
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
-            }
-        }
-
-        stage('Upload Binary File') {
-            steps {
-
-                rtUpload(
-                    serverId: 'artifactory',
-                    spec: '''{
-                      "files": [
-                        {
-                          "pattern": "target/*.jar",
-                          "target": "javaspc/"
-                        }
-                      ]
-                    }'''
-                )
-
-                rtPublishBuildInfo(
-                    serverId: 'artifactory'
-                )
             }
         }
     }
