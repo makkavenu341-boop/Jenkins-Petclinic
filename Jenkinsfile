@@ -1,34 +1,15 @@
 pipeline {
     agent any
 
-    triggers {
-        pollSCM('H/5 * * * *')
+    tools {
+        sonarRunner 'sonar-scanner'
     }
 
     stages {
-
         stage('Checkout') {
             steps {
                 git branch: 'main',
                     url: 'https://github.com/makkavenu341-boop/Jenkins-Petclinic.git'
-            }
-        }
-
-        stage('Debug') {
-            steps {
-                sh '''
-                    echo "Current Directory:"
-                    pwd
-
-                    echo "Workspace Files:"
-                    ls -la
-
-                    echo "Checking Sonar Scanner..."
-                    which sonar-scanner || true
-
-                    echo "Sonar Scanner Version..."
-                    sonar-scanner --version || true
-                '''
             }
         }
 
@@ -39,12 +20,12 @@ pipeline {
                         string(credentialsId: 'sonar-id', variable: 'SONAR_TOKEN')
                     ]) {
                         sh '''
-                            sonar-scanner \
-                            -Dsonar.projectKey=makkavenu341-boop-spring-petclinic \
-                            -Dsonar.organization=makkavenu341-boop \
-                            -Dsonar.sources=. \
-                            -Dsonar.host.url=https://sonarcloud.io \
-                            -Dsonar.token=$SONAR_TOKEN
+                        $SONAR_RUNNER_HOME/bin/sonar-scanner \
+                          -Dsonar.projectKey=makkavenu341-boop-spring-petclinic \
+                          -Dsonar.organization=makkavenu341-boop \
+                          -Dsonar.sources=petclinic \
+                          -Dsonar.host.url=https://sonarcloud.io \
+                          -Dsonar.token=$SONAR_TOKEN
                         '''
                     }
                 }
@@ -57,15 +38,6 @@ pipeline {
                     waitForQualityGate abortPipeline: true
                 }
             }
-        }
-    }
-
-    post {
-        success {
-            echo 'Pipeline completed successfully'
-        }
-        failure {
-            echo 'Pipeline failed'
         }
     }
 }
