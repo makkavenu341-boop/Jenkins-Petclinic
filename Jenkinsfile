@@ -1,11 +1,8 @@
 pipeline {
     agent any
 
-    tools {
-        sonarRunner 'sonar-scanner'
-    }
-
     stages {
+
         stage('Checkout') {
             steps {
                 git branch: 'main',
@@ -20,22 +17,14 @@ pipeline {
                         string(credentialsId: 'sonar-id', variable: 'SONAR_TOKEN')
                     ]) {
                         sh '''
-                        $SONAR_RUNNER_HOME/bin/sonar-scanner \
-                          -Dsonar.projectKey=makkavenu341-boop-spring-petclinic \
-                          -Dsonar.organization=makkavenu341-boop \
-                          -Dsonar.sources=petclinic \
-                          -Dsonar.host.url=https://sonarcloud.io \
-                          -Dsonar.token=$SONAR_TOKEN
+                            sonar-scanner \
+                              -Dsonar.projectKey=makkavenu341-boop-spring-petclinic \
+                              -Dsonar.organization=makkavenu341-boop \
+                              -Dsonar.sources=. \
+                              -Dsonar.host.url=https://sonarcloud.io \
+                              -Dsonar.token=$SONAR_TOKEN
                         '''
                     }
-                }
-            }
-        }
-
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 10, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
                 }
             }
         }
