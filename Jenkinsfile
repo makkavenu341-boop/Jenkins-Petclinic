@@ -16,6 +16,21 @@ pipeline {
             }
         }
 
+        stage('Check Files') {
+            steps {
+                sh '''
+                    echo "Current Directory:"
+                    pwd
+
+                    echo "Workspace Files:"
+                    ls -la
+
+                    echo "Searching for pom.xml..."
+                    find . -name pom.xml
+                '''
+            }
+        }
+
         stage('Sonar Scan') {
             steps {
                 withSonarQubeEnv('SONAR') {
@@ -37,7 +52,7 @@ pipeline {
 
         stage('Quality Gate') {
             steps {
-                timeout(time: 5, unit: 'MINUTES') {
+                timeout(time: 10, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
             }
@@ -45,8 +60,6 @@ pipeline {
 
         stage('Upload Binary File') {
             steps {
-                sh 'ls -ltr target/'
-
                 rtUpload(
                     serverId: 'artifactory',
                     spec: '''{
@@ -63,6 +76,16 @@ pipeline {
                     serverId: 'artifactory'
                 )
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+
+        failure {
+            echo 'Pipeline failed!'
         }
     }
 }
