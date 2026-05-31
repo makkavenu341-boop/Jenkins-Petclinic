@@ -20,7 +20,7 @@ stages {
     stage('Verify Workspace') {
         steps {
             sh '''
-                echo "Current Directory:"
+                echo "Current Workspace:"
                 pwd
 
                 echo "Workspace Files:"
