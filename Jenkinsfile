@@ -16,22 +16,17 @@ pipeline {
             }
         }
 
-        stage('Check Files') {
+        stage('Verify Workspace') {
             steps {
                 sh '''
-                    echo "Current Directory:"
                     pwd
-
-                    echo "Workspace Files:"
                     ls -la
-
-                    echo "Searching for pom.xml..."
                     find . -name pom.xml
                 '''
             }
         }
 
-        stage('Sonar Scan') {
+        stage('Build & Sonar Scan') {
             steps {
                 withSonarQubeEnv('SONAR') {
                     withCredentials([
@@ -43,7 +38,7 @@ pipeline {
                             -Dsonar.projectKey=makkavenu341-boop_spring-petclinic \
                             -Dsonar.organization=makkavenu341-boop \
                             -Dsonar.host.url=https://sonarcloud.io \
-                            -Dsonar.login=$SONAR_TOKEN
+                            -Dsonar.token=$SONAR_TOKEN
                         '''
                     }
                 }
@@ -58,7 +53,7 @@ pipeline {
             }
         }
 
-        stage('Upload Binary File') {
+        stage('Upload Artifact to JFrog') {
             steps {
                 rtUpload(
                     serverId: 'artifactory',
