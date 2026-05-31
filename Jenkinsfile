@@ -63,7 +63,7 @@ stages {
     stage('Upload Artifact to JFrog') {
         steps {
             rtUpload(
-                serverId: 'jfrog_id',
+                serverId: 'artifactory',
                 spec: '''{
                     "files": [
                         {
