@@ -26,7 +26,7 @@ stages {
                 echo "Workspace Files:"
                 ls -la
 
-                echo "Finding pom.xml:"
+                echo "POM Location:"
                 find . -name pom.xml
             '''
         }
@@ -40,11 +40,8 @@ stages {
                         string(credentialsId: 'sonar-id', variable: 'SONAR_TOKEN')
                     ]) {
                         sh '''
-                            pwd
-                            ls -la
-
                             mvn clean verify sonar:sonar \
-                            -DskipTests \
+                            -DskipTests=true \
                             -Dsonar.projectKey=makkavenu341-boop_spring-petclinic \
                             -Dsonar.organization=makkavenu341-boop \
                             -Dsonar.host.url=https://sonarcloud.io \
@@ -72,7 +69,7 @@ stages {
                     "files": [
                         {
                             "pattern": "petclinic/target/*.jar",
-                            "target": "javaspc/"
+                            "target": "SPC/"
                         }
                     ]
                 }'''
