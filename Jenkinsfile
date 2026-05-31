@@ -1,5 +1,7 @@
 pipeline {
-    agent { labels 'SPC'}
+    agent {
+        label 'SPC'
+    }
 
     triggers {
         pollSCM('H/5 * * * *')
@@ -7,29 +9,27 @@ pipeline {
 
     stages {
 
-        stage('git checkout') {
+        stage('Git Checkout') {
             steps {
                 git branch: 'main',
                     url: 'https://github.com/makkavenu341-boop/Jenkins-Petclinic.git'
             }
         }
 
-        stage('scan') {
+        stage('Sonar Scan') {
             steps {
                 withSonarQubeEnv('SONAR') {
-
                     withCredentials([
                         string(credentialsId: 'sonar-id', variable: 'SONAR_TOKEN')
                     ]) {
-
-                        sh """
+                        sh '''
                             mvn clean verify sonar:sonar \
                             -DskipTests \
                             -Dsonar.projectKey=makkavenu341-boop_spring-petclinic \
                             -Dsonar.organization=makkavenu341-boop \
                             -Dsonar.host.url=https://sonarcloud.io \
                             -Dsonar.login=$SONAR_TOKEN
-                        """
+                        '''
                     }
                 }
             }
@@ -40,6 +40,28 @@ pipeline {
                 timeout(time: 5, unit: 'MINUTES') {
                     waitForQualityGate abortPipeline: true
                 }
+            }
+        }
+
+        stage('Upload Binary File') {
+            steps {
+                sh 'ls -ltr target/'
+
+                rtUpload(
+                    serverId: 'artifactory',
+                    spec: '''{
+                        "files": [
+                            {
+                                "pattern": "target/*.jar",
+                                "target": "javaspc/"
+                            }
+                        ]
+                    }'''
+                )
+
+                rtPublishBuildInfo(
+                    serverId: 'artifactory'
+                )
             }
         }
     }
