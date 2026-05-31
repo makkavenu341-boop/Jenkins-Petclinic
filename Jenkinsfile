@@ -1,9 +1,9 @@
+```
 pipeline {
 agent {
 label 'SPC'
 }
 
-```
 triggers {
     pollSCM('H/5 * * * *')
 }
@@ -95,7 +95,7 @@ post {
         cleanWs()
     }
 }
-```
+
 
 }
-
+```
