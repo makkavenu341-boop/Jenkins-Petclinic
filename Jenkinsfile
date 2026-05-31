@@ -16,7 +16,22 @@ pipeline {
             }
         }
 
-        stage('Sonar Scan') {
+        stage('Verify Project Structure') {
+            steps {
+                sh '''
+                    echo "Current Directory:"
+                    pwd
+
+                    echo "Workspace Files:"
+                    ls -la
+
+                    echo "Searching for pom.xml..."
+                    find . -name pom.xml
+                '''
+            }
+        }
+
+        stage('Build & Sonar Scan') {
             steps {
                 withSonarQubeEnv('SONAR') {
                     withCredentials([
@@ -59,6 +74,20 @@ pipeline {
                     serverId: 'artifactory'
                 )
             }
+        }
+    }
+
+    post {
+        always {
+            cleanWs()
+        }
+
+        success {
+            echo 'Pipeline completed successfully.'
+        }
+
+        failure {
+            echo 'Pipeline failed. Check console output.'
         }
     }
 }
