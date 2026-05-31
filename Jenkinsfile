@@ -1,99 +1,64 @@
 pipeline {
-agent {
-label 'SPC'
-}
-
-triggers {
-    pollSCM('H/5 * * * *')
-}
-
-stages {
-
-    stage('Git Checkout') {
-        steps {
-            git branch: 'main',
-                url: 'https://github.com/makkavenu341-boop/Jenkins-Petclinic.git'
-        }
+    agent {
+        label 'SPC'
     }
 
-    stage('Verify Workspace') {
-        steps {
-            sh '''
-                echo "Current Workspace:"
-                pwd
-
-                echo "Workspace Files:"
-                ls -la
-
-                echo "POM Location:"
-                find . -name pom.xml
-            '''
-        }
+    triggers {
+        pollSCM('H/5 * * * *')
     }
 
-    stage('Build & Sonar Scan') {
-        steps {
-            dir('petclinic') {
+    stages {
+
+        stage('Git Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/makkavenu341-boop/Jenkins-Petclinic.git'
+            }
+        }
+
+        stage('Sonar Scan') {
+            steps {
                 withSonarQubeEnv('SONAR') {
                     withCredentials([
                         string(credentialsId: 'sonar-id', variable: 'SONAR_TOKEN')
                     ]) {
                         sh '''
                             mvn clean verify sonar:sonar \
-                            -DskipTests=true \
+                            -DskipTests \
                             -Dsonar.projectKey=makkavenu341-boop_spring-petclinic \
                             -Dsonar.organization=makkavenu341-boop \
                             -Dsonar.host.url=https://sonarcloud.io \
-                            -Dsonar.token=$SONAR_TOKEN
+                            -Dsonar.login=$SONAR_TOKEN
                         '''
                     }
                 }
             }
         }
-    }
 
-    stage('Quality Gate') {
-        steps {
-            timeout(time: 10, unit: 'MINUTES') {
-                waitForQualityGate abortPipeline: true
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: true
+                }
+            }
+        }
+
+        stage('JFrog Upload') {
+            steps {
+                rtUpload(
+                    serverId: 'artifactory',
+                    spec: '''{
+                        "files": [{
+                            "pattern": "target/*.jar",
+                            "target": "libs-release-local/"
+                        }]
+                    }'''
+                )
+
+                rtPublishBuildInfo(
+                    serverId: 'artifactory'
+                )
             }
         }
     }
-
-    stage('Upload Artifact to JFrog') {
-        steps {
-            rtUpload(
-                serverId: 'jfrog',
-                spec: '''{
-                    "files": [
-                        {
-                            "pattern": "petclinic/target/*.jar",
-                            "target": "SPC/"
-                        }
-                    ]
-                }'''
-            )
-
-            rtPublishBuildInfo(
-                serverId: 'jfrog'
-            )
-        }
-    }
-}
-
-post {
-    success {
-        echo 'Pipeline completed successfully!'
-    }
-
-    failure {
-        echo 'Pipeline failed!'
-    }
-
-    always {
-        cleanWs()
-    }
-}
-
-
 }
