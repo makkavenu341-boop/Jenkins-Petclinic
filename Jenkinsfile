@@ -1,93 +1,43 @@
-pipeline {
-    agent {
-        label 'SPC'
-    }
-
+pipeline{
+    agent{label 'SPCJAVA'}
     triggers {
-        pollSCM('H/5 * * * *')
+        pollSCM('* * * * *')
     }
-
     stages {
-
-        stage('Git Checkout') {
+        stage('git checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/makkavenu341-boop/Jenkins-Petclinic.git'
+                git url: "https://github.com/makkavenu341-boop/Jenkins-Petclinic.git"
+                branch: "main"
             }
         }
-
-        stage('Verify Project Structure') {
+        stage('scan') {
             steps {
-                sh '''
-                    echo "Current Directory:"
-                    pwd
-
-                    echo "Workspace Files:"
-                    ls -la
-
-                    echo "Searching for pom.xml..."
-                    find . -name pom.xml
-                '''
-            }
-        }
-
-        stage('Build & Sonar Scan') {
-            steps {
-                withSonarQubeEnv('SONAR') {
-                    withCredentials([
-                        string(credentialsId: 'sonar-id', variable: 'SONAR_TOKEN')
-                    ]) {
-                        sh '''
-                            mvn clean verify sonar:sonar \
-                            -DskipTests \
-                            -Dsonar.projectKey=makkavenu341-boop_spring-petclinic \
-                            -Dsonar.organization=makkavenu341-boop \
-                            -Dsonar.host.url=https://sonarcloud.io \
-                            -Dsonar.login=$SONAR_TOKEN
-                        '''
+                withCredentials([string(credentialsId: 'sonar_id', variable: 'SONAR_TOCKEN')]) {
+                 withSonarQubeEnv('SONAR') {
+                    sh """mvn clean verify sonar:sonar \
+                          -Dsonar.projectKey=longflewtinku_spring-petclinic \
+                          -Dsonar.organization=longflewtinku-2 \
+                          -Dsonar.host.url=https://sonarcloud.io/ \
+                          -Dsonar.login=SONAR_TOKEN"""
                     }
                 }
             }
         }
-
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 5, unit: 'MINUTES') {
-                    waitForQualityGate abortPipeline: true
+            stage('upload binaryfile') {
+                step {
+                    rtUpload (
+                        serverId: '',
+                        spec: '''{
+                           "files": [
+                           {
+                             "pattern": "target/*.jar",
+                             "target": "javaspc/"
+                            }
+                            ]
+                        }'''
+                    )
+                    rtPublishBuildInfo(serverId: '')
                 }
             }
-        }
-
-        stage('JFrog Upload') {
-            steps {
-                rtUpload(
-                    serverId: 'artifactory',
-                    spec: '''{
-                        "files": [{
-                            "pattern": "target/*.jar",
-                            "target": "libs-release-local/"
-                        }]
-                    }'''
-                )
-
-                rtPublishBuildInfo(
-                    serverId: 'artifactory'
-                )
-            }
-        }
-    }
-
-    post {
-        always {
-            cleanWs()
-        }
-
-        success {
-            echo 'Pipeline completed successfully.'
-        }
-
-        failure {
-            echo 'Pipeline failed. Check console output.'
-        }
     }
 }
