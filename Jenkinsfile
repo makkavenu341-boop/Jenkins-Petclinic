@@ -1,6 +1,6 @@
 pipeline {
     agent {
-        label 'SPCJAVA'
+        label 'SPC'
     }
 
     triggers {
