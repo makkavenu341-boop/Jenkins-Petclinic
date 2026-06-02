@@ -24,7 +24,7 @@ pipeline{
             }
         }
             stage('upload binaryfile') {
-                step {
+                steps {
                     rtUpload (
                         serverId: 'JFROG_ID',
                         spec: '''{
