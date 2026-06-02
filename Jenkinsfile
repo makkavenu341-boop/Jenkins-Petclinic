@@ -1,43 +1,55 @@
-pipeline{
-    agent{label 'SPCJAVA'}
+pipeline {
+    agent {
+        label 'SPCJAVA'
+    }
+
     triggers {
         pollSCM('* * * * *')
     }
+
     stages {
+
         stage('git checkout') {
             steps {
-                git url: "https://github.com/makkavenu341-boop/Jenkins-Petclinic.git"
-                branch: "main"
+                git branch: 'main',
+                    url: 'https://github.com/makkavenu341-boop/Jenkins-Petclinic.git'
             }
         }
+
         stage('scan') {
             steps {
-                withCredentials([string(credentialsId: 'sonar_id', variable: 'SONAR_TOCKEN')]) {
-                 withSonarQubeEnv('SONAR') {
-                    sh """mvn clean verify sonar:sonar \
+                withCredentials([string(credentialsId: 'sonar_id', variable: 'SONAR_TOKEN')]) {
+                    withSonarQubeEnv('SONAR') {
+                        sh """
+                        mvn clean verify sonar:sonar \
                           -Dsonar.projectKey=longflewtinku_spring-petclinic \
                           -Dsonar.organization=longflewtinku-2 \
-                          -Dsonar.host.url=https://sonarcloud.io/ \
-                          -Dsonar.login=SONAR_TOKEN"""
+                          -Dsonar.host.url=https://sonarcloud.io \
+                          -Dsonar.login=\$SONAR_TOKEN
+                        """
                     }
                 }
             }
         }
-            stage('upload binaryfile') {
-                step {
-                    rtUpload (
-                        serverId: '',
-                        spec: '''{
-                           "files": [
-                           {
-                             "pattern": "target/*.jar",
-                             "target": "javaspc/"
+
+        stage('upload binaryfile') {
+            steps {
+                rtUpload(
+                    serverId: 'jfrog',
+                    spec: '''{
+                        "files": [
+                            {
+                                "pattern": "target/*.jar",
+                                "target": "javaspc/"
                             }
-                            ]
-                        }'''
-                    )
-                    rtPublishBuildInfo(serverId: '')
-                }
+                        ]
+                    }'''
+                )
+
+                rtPublishBuildInfo(
+                    serverId: 'jfrog'
+                )
             }
+        }
     }
 }
