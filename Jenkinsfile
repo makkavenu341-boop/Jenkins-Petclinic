@@ -33,7 +33,7 @@ pipeline {
                         string(credentialsId: 'sonar_id', variable: 'SONAR_TOKEN')
                     ]) {
 
-                        withSonarQubeEnv('SONAR') {
+                        withSonarQubeEnv('sonar') {
 
                             sh """
                             mvn sonar:sonar \
