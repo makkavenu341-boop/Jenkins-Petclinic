@@ -37,8 +37,8 @@ pipeline {
 
                             sh """
                             mvn sonar:sonar \
-                            -Dsonar.projectKey=longflewtinku_spring-petclinic \
-                            -Dsonar.organization=longflewtinku-2 \
+                            -Dsonar.projectKey=makkavenu341-boop_jenkins-petclinic \
+                            -Dsonar.organization=makkavenu341-boop \
                             -Dsonar.host.url=https://sonarcloud.io \
                             -Dsonar.token=$SONAR_TOKEN
                             """
