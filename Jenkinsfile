@@ -51,7 +51,7 @@ pipeline {
         stage('Upload Artifact') {
             steps {
                 rtUpload(
-                    serverId: 'JFROG_ID',
+                    serverId: 'jfrog',
                     spec: '''{
                         "files": [
                             {
@@ -63,7 +63,7 @@ pipeline {
                 )
 
                 rtPublishBuildInfo(
-                    serverId: 'JFROG_ID'
+                    serverId: 'jfrog'
                 )
             }
         }
