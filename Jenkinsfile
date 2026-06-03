@@ -56,7 +56,7 @@ pipeline {
                         "files": [
                             {
                                 "pattern": "petclinic/target/*.jar",
-                                "target": "javaspc/"
+                                "target": "SPC/"
                             }
                         ]
                     }'''
